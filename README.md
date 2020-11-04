@@ -30,3 +30,9 @@ Simple single-cycle RISC-V CPU
 </pre>
 
 - The CPU directory contains all of the design files, while the Diagrams directory contains the diagrams
+
+# CPU Design
+![](Diagrams/sc_cpu_top.jpg)
+
+## Core
+- sc_core (single-cycle core) is the main module that contains
