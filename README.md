@@ -43,7 +43,7 @@ Simple single-cycle RISC-V CPU
 - The program counter (PC) increments by 4 each clock cycle, assuming the instruction is not a branch or jump. The PC increments by 4 since the instruction memory is byte addressable, which means that by incrementing the counter by 4, we increment over 32 bits (the size of one instruction).
 
 ### Control Unit
-- The control unit is responsible for sending selsect signals to multiplexers as well as the ALU control signal.
+- The control unit is responsible for sending select signals to multiplexers as well as the ALU control signal.
 - Signals:
     - Inputs:
         - opcode: The first 7 bits of the instruction
