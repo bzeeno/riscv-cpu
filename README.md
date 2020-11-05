@@ -3,30 +3,30 @@ Simple single-cycle RISC-V CPU
 
 # Directory Structure
 <pre>
-├── CPU
-│   ├── Core
-│   │   ├── ALU
+├── Core
+│   ├── ALU
+│   │   ├── AddSubUnit
 │   │   │   ├── add_sub32.v
-│   │   │   ├── alu.v
-│   │   │   ├── CLA
-│   │   │   │   ├── cla_16bit.v
-│   │   │   │   ├── cla_32bit.v
-│   │   │   │   ├── cla_4bit.v
-│   │   │   │   └── cla_8bit.v
-│   │   │   └── shifter.v
-│   │   ├── control_unit.v
-│   │   ├── dff.v
-│   │   ├── imm_decode.v
-│   │   ├── mux.v
-│   │   ├── regfile.v
-│   │   └── sc_core.v
-│   ├── Data_Mem
-│   │   └── data_mem.v
-│   ├── Instruction_Mem
-│   │   └── instruction_mem.v
-│   └── sc_cpu.v
-└── Diagrams
-    └── cpu.jpg
+│   │   │   └── CLA
+│   │   │       ├── cla_16bit.v
+│   │   │       ├── cla_32bit.v
+│   │   │       ├── cla_4bit.v
+│   │   │       └── cla_8bit.v
+│   │   ├── alu.v
+│   │   └── Shifter
+│   │       └── shifter.v
+│   ├── control_unit.v
+│   ├── dff.v
+│   ├── imm_decode.v
+│   ├── mux.v
+│   ├── regfile.v
+│   └── sc_core.v
+├── Data_Mem
+│   └── data_mem.v
+├── Instruction_Mem
+│   └── instruction_mem.v
+└── sc_cpu.v
+
 </pre>
 
 - The CPU directory contains all of the design files, while the Diagrams directory contains the diagrams
@@ -310,6 +310,35 @@ Simple single-cycle RISC-V CPU
 	- read_data2: 32-bit read data
 
 ### ALU
+- The ALU performs the following logical operations:
+	- AND
+	- OR
+	- XOR
+	- LUI 
+- The output is selected by a 4:1 MUX using bits 0 and 1 of the aluc signal as the selector
+#### Add/Sub Unit
+- The add_sub32 module instantiates the Carry Look-ahead Adder (CLA) and converts input b of the ALU if the operation is sub.
+	- In order to carry out a sub operation, the add_sub32 unit inverts input b and passes 1 as the carry-in. This effectively converts the binary number to 2's complement and the CLA can then simply add the inputs
+	- If the operation is add, then input b is passed to the CLA unchanged and the carry-in is set to 0
+##### Carry Look-ahead Adder (CLA)
+- The CLA uses a technique in which two 16-bit CLAs are used to make up the 32-bit CLA. However, the 2 16-bit CLAs are made up of 2 8-bit CLAs and those 2 8-bit CLAs are made up of 2 4-bit CLAs.
+- The 2 4-bit CLAs (cla_4bit) is where we can see the CLA logic. The CLA uses the following equation, obtained from the truth table, to calculate carries:
+	- C<sub>i</sub> = G<sub>i</sub> + P<sub>i</sub> * C<sub>i-1</sub>
+		- Where C<sub>i</sub> is the carry out
+		- G<sub>i</sub> = input A * input B (Carry Generate)
+		- P<sub>i</sub> = input A ⊕ input B (Carry Propagate)
+		- Note: C<sub>-1</sub> is the original carry-in
+- Using the above formula, we can calculate each carry without having to wait for the previous carry by replacing C<sub>i-1</sub> with the previous C<sub>i</sub> formula, such that the only dependencies are input A, input B, and the original carry-in
+	- C<sub>0</sub> = G<sub>0</sub> + P<sub>0</sub> * C<sub>-1</sub>
+	- C<sub>1</sub> = G<sub>1</sub> + P<sub>1</sub> * C<sub>0</sub> = G<sub>1</sub> + P<sub>1</sub> * (G<sub>0</sub> + P<sub>0</sub> * C<sub>-1</sub>) =  G<sub>1</sub> + P<sub>1</sub> * G<sub>0</sub> + P<sub>1</sub> * P<sub>0</sub> * C<sub>-1</sub>
+	- C<sub>2</sub> = G<sub>2</sub> + P<sub>2</sub> * C<sub>1</sub> = G<sub>2</sub> + P<sub>2</sub> * G<sub>1</sub> + P<sub>2</sub> * P<sub>1</sub> * G<sub>0</sub> + P<sub>2</sub> * P<sub>1</sub> * P<sub>0</sub> * C<sub>-1</sub>
+	- C<sub>3</sub> = G<sub>3</sub> + P<sub>3</sub> * C<sub>2</sub> = G<sub>3</sub> + P<sub>3</sub> * G<sub>2</sub> + P<sub>3</sub> * P<sub>2</sub> * G<sub>1</sub> + P<sub>3</sub> * P<sub>2</sub> * P<sub>1</sub> * G<sub>0</sub> + P<sub>3</sub> * P<sub>2</sub> * P<sub>1</sub> * P<sub>0</sub> * C<sub>-1</sub>
+	
+- The sum is obtained by doing a bitwise XOR of the carry propagate and the obtained carry values
+
+#### Shifter
+- The shifter simply shifts the input based on the shift amount, right signal (if right = 0. then shift left), and the arith signal (which is a boolean for an arithmetic shift)
+</br>
 
 ### Immediate Decoder
 
