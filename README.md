@@ -33,14 +33,26 @@ Simple single-cycle RISC-V CPU
 
 # CPU Design
 ![](Diagrams/sc_cpu_top.jpg)
-## Instruction Memory
-## Data Memory
+- 32-bit computing  
+- The CPU utilizes the Harvard architecture
+- Design is based on the RISC-V instruction set architecture (ISA)
+- The CPU is a simple single-cycle, single-core CPU
+
 ## Core
 ![](Diagrams/core.jpg)
 - sc_core (single-cycle core) is the main module that contains the control unit, the program counter logic, the ALU, the register file, and the immediate decoder.
 
 ### Program Counter
 - The program counter (PC) increments by 4 each clock cycle, assuming the instruction is not a branch or jump. The PC increments by 4 since the instruction memory is byte addressable, which means that by incrementing the counter by 4, we increment over 32 bits (the size of one instruction).
+- Branches and Jumps:
+	- The immediate for branches and jumps is specified by the number of words rather than the number of bytes
+		- So, if the branch or jump is taken, then: PC = PC + (immediate * 4)
+	- jal instruction:
+		- The jal instruction is the instruction in which an immediate value is added to the PC to determine the target address
+		- The PC + 4 (The return address) is saved in the register file at rd, typically at 0x01
+	- jalr instruction:
+		- The jalr instruction adds a 12-bit immediate value to rs1 to determine the target address
+		- The retrun address is saved to rd, typically 0x01
 
 ### Control Unit
 - The control unit is responsible for sending select signals to multiplexers as well as the ALU control signal.
@@ -341,4 +353,16 @@ Simple single-cycle RISC-V CPU
 </br>
 
 ### Immediate Decoder
+- The immediate decoder decodes the immediate values from the instruction
+- The immediate values are either padded with 0s or 1s depending on the signext signal from the control unit
+- The immediate value is then passed to the branch and jalr adder, the input b multiplexer for the ALU, and the jal and PC adder.
 
+## Instruction Memory
+- Holds the 32-bit instructions
+- Uses the PC as the address (Note: the instruction memory is byte-addressable)
+- Designed as a simple ROM
+
+## Data Memory
+- Data memory acts as RAM
+- The write enable signal is obtained from the control unit in the CPU's core
+- The address is calculated by the ALU in the CPU's core
