@@ -1,5 +1,19 @@
-# Single-Cycle-CPU
-Simple single-cycle RISC-V CPU
+Table of Contents
+=================
+
+   * [Directory Structure](#directory-structure)
+   * [CPU Design](#cpu-design)
+      * [Core](#core)
+         * [Program Counter](#program-counter)
+         * [Control Unit](#control-unit)
+         * [Register File](#register-file)
+         * [ALU](#alu)
+            * [Add/Sub Unit](#addsub-unit)
+               * [Carry Look-ahead Adder (CLA)](#carry-look-ahead-adder-cla)
+            * [Shifter](#shifter)
+         * [Immediate Decoder](#immediate-decoder)
+      * [Instruction Memory](#instruction-memory)
+      * [Data Memory](#data-memory)
 
 # Directory Structure
 <pre>
