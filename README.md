@@ -1,3 +1,6 @@
+# Single-Cycle-CPU
+Simple single-cycle RISC-V CPU
+
 Table of Contents
 =================
 
