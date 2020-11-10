@@ -45,8 +45,9 @@ Simple single-cycle RISC-V CPU
 ### Program Counter
 - The program counter (PC) increments by 4 each clock cycle, assuming the instruction is not a branch or jump. The PC increments by 4 since the instruction memory is byte addressable, which means that by incrementing the counter by 4, we increment over 32 bits (the size of one instruction).
 - Branches and Jumps:
-	- The immediate for branches and jumps is specified by the number of words rather than the number of bytes
-		- So, if the branch or jump is taken, then: PC = PC + (immediate * 4)
+	- The immediate for branches and jumps is specified by the number of bytes
+		- This means the immediate will always be an even number, so, the 0th bit is set to 0 and is not encoded in the instruction
+		- If the branch or jump is taken, then: PC = PC + (immediate * 4)
 	- jal instruction:
 		- The jal instruction is the instruction in which an immediate value is added to the PC to determine the target address
 		- The PC + 4 (The return address) is saved in the register file at rd, typically at 0x01
