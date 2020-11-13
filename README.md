@@ -382,5 +382,6 @@ Table of Contents
 
 ## Data Memory
 - Data memory acts as RAM
+- Data memory is word-addressable
 - The write enable signal is obtained from the control unit in the CPU's core
 - The address is calculated by the ALU in the CPU's core
