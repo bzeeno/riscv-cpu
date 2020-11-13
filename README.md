@@ -377,7 +377,7 @@ Table of Contents
 
 ## Instruction Memory
 - Holds the 32-bit instructions
-- Uses the PC as the address (Note: the instruction memory is byte-addressable)
+- Uses the PC as the address (Note: the instruction memory is word-addressable)
 - Designed as a simple ROM
 
 ## Data Memory
