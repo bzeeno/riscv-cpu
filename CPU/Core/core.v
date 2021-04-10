@@ -1,4 +1,4 @@
-module sc_core(
+module core(
     input wire i_clk, i_resetn,
     input wire [31:0] i_instr, // instruction from instruction memory
     input wire [31:0] i_dmem,  // data from data memory
@@ -24,14 +24,14 @@ module sc_core(
     wire [31:0] jalr_branch_pc;                    // pc for branch or jalr
     
     // ALU Signals
-    wire [3:0] aluc;
+    wire [5:0] aluc;
     wire [31:0] alu_inputa;
     wire [31:0] alu_inputb;
     wire z;
     wire [31:0] r;
     // control unit signals
     wire [1:0] pcsrc;
-    wire mem2reg, wmem, aluimm, wreg, jal, jalr, signext;
+    wire mem2reg, wmem, aluimm, wreg, jal, jalr, signext, auipc, ls_b, ls_h, load_signext;
     
     // immediate decoder signal 
     wire [31:0] imm_val; // hold immediate value from instr
@@ -40,6 +40,7 @@ module sc_core(
     wire [31:0] reg_wdata;
     wire [31:0] reg_rdata1, reg_rdata2; // read data from reg file
     wire [31:0] alu_mem_data; // temp wire to wreg_mux
+    wire [31:0] dmem_mod; // modified dmem data
     
     /********************** CONTROL UNIT **********************/
     control_unit controller(
@@ -52,7 +53,7 @@ module sc_core(
         // to datapath
         .aluc(aluc),
         .pcsrc(pcsrc),
-        .mem2reg(mem2reg), .wmem(o_wmem), .aluimm(aluimm), .wreg(wreg), .jal(jal), .jalr(jalr), .signext(signext)
+        .mem2reg(mem2reg), .wmem(o_wmem), .aluimm(aluimm), .wreg(wreg), .jal(jal), .jalr(jalr), .signext(signext), .auipc(auipc), .ls_b(ls_b), .ls_h(ls_h), .load_signext(load_signext)
     );
     /**********************************************************/
     
@@ -102,8 +103,7 @@ module sc_core(
     
     
     /********************** REGFILE **********************/
-
-    assign alu_mem_data = mem2reg ? i_dmem : r;
+    assign alu_mem_data = mem2reg ? dmem_mod : r;
     
     // write data to regfile mux
     // 1 -> p4
@@ -132,22 +132,38 @@ module sc_core(
     
     
     /********************** ALU **********************/
+    // input a mux
+    assign alu_inputa = auipc ? o_pc : reg_rdata1;
     
     // input b mux
     assign alu_inputb = aluimm ? imm_val : reg_rdata2;
     
     alu alu_unit(
-        .a(reg_rdata1), .b(alu_inputb),
+        .a(alu_inputa), .b(alu_inputb),
         .aluc(aluc),
         .zero(z), // zero flag
         .result(r)
     );
-    
     /*************************************************/
     
+    /********************** STORE MODIFIER **********************/
+    store_modifier store_unit (
+        .sb(ls_b), .sh(ls_h), 
+        .data_in(reg_rdata2),
+        .data_out(o_dmem)
+    );
+    /************************************************************/
     
+    /*********************** LOAD MODIFIER **********************/
+    load_modifier load_unit (
+        .lb(ls_b), .lh(ls_h), .load_signext(load_signext),
+        .data_in(i_dmem),
+        .data_out(dmem_mod)
+    );
+    /************************************************************/
+
     /********************** OUTPUTS **********************/
     assign o_alu = r;
-    assign o_dmem = reg_rdata2;
     /*****************************************************/
 endmodule
+
