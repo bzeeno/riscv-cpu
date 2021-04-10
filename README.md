@@ -56,7 +56,7 @@ Table of Contents
 - The CPU is a simple single-cycle, single-core CPU
 
 ## Core
-![](Diagrams/core.jpg)
+![](Diagrams/Core.jpg)
 - sc_core (single-cycle core) is the main module that contains the control unit, the program counter logic, the ALU, the register file, and the immediate decoder.
 
 ### Program Counter
