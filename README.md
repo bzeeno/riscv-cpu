@@ -49,7 +49,7 @@ Table of Contents
 - The CPU directory contains all of the design files, while the Diagrams directory contains the diagrams
 
 # CPU Design
-![](Diagrams/sc_cpu_top.jpg)
+![](Diagrams/cpu.jpg)
 - 32-bit computing  
 - The CPU utilizes the Harvard architecture
 - Design is based on the RISC-V instruction set architecture (ISA)
