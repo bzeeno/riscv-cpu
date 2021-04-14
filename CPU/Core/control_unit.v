@@ -229,6 +229,25 @@ module control_unit (
                 pcsrc   = 2'b00;
                 aluc    = 6'bxx0000;
                 auipc   = 1'b0;
+                case(funct3) 
+                    3'b000: // sb
+                    begin
+                        ls_b = 1'b1;
+                        ls_h = 1'b0;
+                    end
+
+                    3'b001: // sh
+                    begin
+                        ls_b = 1'b0;
+                        ls_h = 1'b1;
+                    end
+
+                    default: // sw
+                    begin
+                        ls_b = 0;
+                        ls_h = 0;
+                    end
+                endcase
             end
             
             7'b0110111: // lui
