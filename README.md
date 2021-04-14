@@ -35,16 +35,19 @@ Table of Contents
 │   │   └── Shifter
 │   │       └── shifter.v
 │   ├── control_unit.v
+│   ├── core.v
 │   ├── dff.v
 │   ├── imm_decode.v
+│   ├── load_modifier.v
 │   ├── mux.v
 │   ├── regfile.v
-│   └── sc_core.v
+│   └── store_modifier.v
 ├── Data_Mem
 │   └── data_mem.v
 ├── Instruction_Mem
 │   └── instruction_mem.v
 └── sc_cpu.v
+
 
 </pre>
 
