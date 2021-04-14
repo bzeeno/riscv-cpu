@@ -307,7 +307,7 @@ Table of Contents
 		- psrc = 00
 		- auipc = 0
 
-- slli:
+	- slli:
 		- z = x
 		- wreg = 1
 		- jal = 0
@@ -531,7 +531,7 @@ Table of Contents
 		- psrc = ~z
 		- auipc = 0
 
-- blt:
+	- blt:
 		- z = 0/1
 		- wreg = 0
 		- jal = x
@@ -547,7 +547,7 @@ Table of Contents
 		- psrc = ~z
 		- auipc = 0
 
-- bltu:
+	- bltu:
 		- z = 0/1
 		- wreg = 0
 		- jal = x
@@ -563,7 +563,7 @@ Table of Contents
 		- psrc = ~z
 		- auipc = 0
 
-- bge:
+	- bge:
 		- z = 0/1
 		- wreg = 0
 		- jal = x
@@ -579,7 +579,7 @@ Table of Contents
 		- psrc = z
 		- auipc = 0
 
-- bgeu:
+	- bgeu:
 		- z = 0/1
 		- wreg = 0
 		- jal = x
