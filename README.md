@@ -15,6 +15,8 @@ Table of Contents
                * [Carry Look-ahead Adder (CLA)](#carry-look-ahead-adder-cla)
             * [Shifter](#shifter)
          * [Immediate Decoder](#immediate-decoder)
+         * [Store Modifier](#store-modifier)
+         * [Load Modifier](#load-modifier)
       * [Instruction Memory](#instruction-memory)
       * [Data Memory](#data-memory)
 
@@ -49,7 +51,7 @@ Table of Contents
 - The CPU directory contains all of the design files, while the Diagrams directory contains the diagrams
 
 # CPU Design
-![](Diagrams/sc_cpu_top.jpg)
+![](Diagrams/cpu.jpg)
 - 32-bit computing  
 - The CPU utilizes the Harvard architecture
 - Design is based on the RISC-V instruction set architecture (ISA)
@@ -75,29 +77,39 @@ Table of Contents
 ### Control Unit
 - The control unit is responsible for sending select signals to multiplexers as well as the ALU control signal.
 - Signals:
-    - Inputs:
-        - opcode: The first 7 bits of the instruction
-        - funct3: A 3 bit function code that is held in bits 12-14 of the instruction (LUI and Jump instructions do not contain funct3)
-        - funct7: A 7 bit function code that is held in bits 25-31 of the instruction (LUI, Jumps, Branches, and Immediates do not contain funct7)
+	- Inputs:
+        	- opcode: The first 7 bits of the instruction
+        	- funct3: A 3 bit function code that is held in bits \[14:12] of the instruction (LUI and Jump instructions do not contain funct3)
+        	- funct7: A 7 bit function code that is held in bits \[31:25] of the instruction (LUI, Jumps, Branches, and Immediates do not contain funct7)
 		- zero: The zero flag from the ALU (set to 1 if the output of the ALU is 0)
+	
 	- Outputs:
-		- jal: Selector signal for data to be written to the register file
-		- signext: A signal to determine whether to sign extend the immediate value (If it is an immediate instruction)
 		- wreg: The write enbale signal for the register file
+		- jal: Selector signal for data to be written to the register file
+		- jalr: The selector signal for the multiplexer for jalr and branch instructions
+		- mem2reg: The selector signal for the multiplexer that chooses between the ALU result and the data memory
+			- 0: ALU result
+			- 1: Data from data memory
 		- aluimm: The selector signal for input b of the ALU
 			- 0: read_data2 from register file
 			- 1: Immediate value
-		- aluc: The 4-bit ALU control signal. This signal determines which operation the ALU will execute.
+		- signext: A signal to determine whether to sign extend the immediate value (If it is an immediate instruction)
+		- ls_b: This signal is used only for load and store instructions. This signal determines if the load or store is operating on a byte. (i.e. load byte/store byte)
+		- ls_h: This signal is similar to ls_b, except that it determines if the CPU is loading or storing a half-word
+		- load_signext: Determines whether to sign extend the loaded data.
+		- aluc: The 6-bit ALU control signal. This signal determines which operation the ALU will execute.
+			- bits \[2:0] are used as the select signal for the final output of the ALU.
+			- bit \[3] is used as the select signal between two operations (i.e. add/sub, and/or, etc.)
+			- bit \[4] is used to determine if a shift operation is logical or arithmetic.
+			- bit \[5] will be used for integer multiply and divide operations.
 		- wmem: The write enable signal for the data memory
 		- pcsrc: The selector signal for the program counter multiplexer
 			- 0: PC+4
 			- 1: Branch Addr
 			- 2: Reg Addr
 			- 3: Jump Addr
-		- mem2reg: The selector signal for the multiplexer that chooses between the ALU result and the data memory
-			- 0: ALU result
-			- 1: Data from data memory
-		- jalr: The selector signal for the multiplexer for jalr and branch instructions
+		- auipc: Determines if the instruction is auipc.
+		
 - Instructions and their respective signal values:
 	- add:
 		- z = x
@@ -107,9 +119,13 @@ Table of Contents
 		- mem2reg = 0
 		- aluimm = 0
 		- signext = x
-		- aluc = x000
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx0000
 		- wmem = 0
 		- psrc = 00
+		- auipc = 0
 
 	- sub:
 		- z = x
@@ -119,9 +135,13 @@ Table of Contents
 		- mem2reg = 0
 		- aluimm = 0
 		- signext = x
-		- aluc = x100
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx1000
 		- wmem = 0
 		- psrc = 00
+		- auipc = 0
 
 	- and:
 		- z = x
@@ -131,9 +151,13 @@ Table of Contents
 		- mem2reg = 0
 		- aluimm = 0
 		- signext = x
-		- aluc = x001
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx0010
 		- wmem = 0
 		- psrc = 00
+		- auipc = 0
 
 	- or:
 		- z = x
@@ -143,9 +167,13 @@ Table of Contents
 		- mem2reg = 0
 		- aluimm = 0
 		- signext = x
-		- aluc = x101
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx1010
 		- wmem = 0
 		- psrc = 00
+		- auipc = 0
 
 	- xor:
 		- z = x
@@ -155,9 +183,13 @@ Table of Contents
 		- mem2reg = 0
 		- aluimm = 0
 		- signext = x
-		- aluc = x010
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx0100
 		- wmem = 0
 		- psrc = 00
+		- auipc = 0
 
 	- addi:
 		- z = x
@@ -166,10 +198,78 @@ Table of Contents
 		- jalr = x
 		- mem2reg = 0
 		- aluimm = 1
-		- signext = 0
-		- aluc = x000
+		- signext = 1
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx0000
 		- wmem = 0
 		- psrc = 00
+		- auipc = 0
+
+	- slti:
+		- z = x
+		- wreg = 1
+		- jal = 0
+		- jalr = x
+		- mem2reg = 0
+		- aluimm = 1
+		- signext = 1
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx0011
+		- wmem = 0
+		- psrc = 00
+		- auipc = 0
+
+	- slt:
+		- z = x
+		- wreg = 1
+		- jal = 0
+		- jalr = x
+		- mem2reg = 0
+		- aluimm = 0
+		- signext = x
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx0011
+		- wmem = 0
+		- psrc = 00
+		- auipc = 0
+
+	- sltiu:
+		- z = x
+		- wreg = 1
+		- jal = 0
+		- jalr = x
+		- mem2reg = 0
+		- aluimm = 1
+		- signext = 1
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx1011
+		- wmem = 0
+		- psrc = 00
+		- auipc = 0
+
+	- sltu:
+		- z = x
+		- wreg = 1
+		- jal = 0
+		- jalr = x
+		- mem2reg = 0
+		- aluimm = 0
+		- signext = x
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx1011
+		- wmem = 0
+		- psrc = 00
+		- auipc = 0
 
 	- andi:
 		- z = x
@@ -179,9 +279,13 @@ Table of Contents
 		- mem2reg = 0
 		- aluimm = 1
 		- signext = 0
-		- aluc = x001
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx0010
 		- wmem = 0
 		- psrc = 00
+		- auipc = 0
 
 	- ori:
 		- z = x
@@ -191,9 +295,13 @@ Table of Contents
 		- mem2reg = 0
 		- aluimm = 1
 		- signext = 0
-		- aluc = x101
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx1010
 		- wmem = 0
 		- psrc = 00
+		- auipc = 0
 
 	- xori:
 		- z = x
@@ -203,9 +311,13 @@ Table of Contents
 		- mem2reg = 0
 		- aluimm = 1
 		- signext = 0
-		- aluc = x010
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx0100
 		- wmem = 0
 		- psrc = 00
+		- auipc = 0
 
 	- slli:
 		- z = x
@@ -214,10 +326,14 @@ Table of Contents
 		- jalr = x
 		- mem2reg = 0
 		- aluimm = 1
-		- signext = x
-		- aluc = 0011
+		- signext = 0
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = x00101
 		- wmem = 0
 		- psrc = 00
+		- auipc = 0
 
 	- srli:
 		- z = x
@@ -226,10 +342,14 @@ Table of Contents
 		- jalr = x
 		- mem2reg = 0
 		- aluimm = 1
-		- signext = x
-		- aluc = 0111
+		- signext = 0
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = x01101
 		- wmem = 0
 		- psrc = 00
+		- auipc = 0
 
 	- srai:
 		- z = x
@@ -238,10 +358,94 @@ Table of Contents
 		- jalr = x
 		- mem2reg = 0
 		- aluimm = 1
-		- signext = x
-		- aluc = 1111
+		- signext = 0
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = x11101
 		- wmem = 0
 		- psrc = 00
+		- auipc = 0
+
+	- sll:
+		- z = x
+		- wreg = 1
+		- jal = 0
+		- jalr = x
+		- mem2reg = 0
+		- aluimm = 0
+		- signext = x
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = x00101
+		- wmem = 0
+		- psrc = 00
+		- auipc = 0
+
+	- srl:
+		- z = x
+		- wreg = 1
+		- jal = 0
+		- jalr = x
+		- mem2reg = 0
+		- aluimm = 0
+		- signext = x
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = x01101
+		- wmem = 0
+		- psrc = 00
+		- auipc = 0
+
+	- sra:
+		- z = x
+		- wreg = 1
+		- jal = 0
+		- jalr = x
+		- mem2reg = 0
+		- aluimm = 0
+		- signext = x
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = x11101
+		- wmem = 0
+		- psrc = 00
+		- auipc = 0
+
+	- lb:
+		- z = x
+		- wreg = 1
+		- jal = 0
+		- jalr = x
+		- mem2reg = 1
+		- aluimm = 1
+		- signext = 1
+		- ls_b = 1
+		- ls_h = 0
+		- load_signext = 1
+		- aluc = xx0000
+		- wmem = 0
+		- psrc = 00
+		- auipc = 0
+		
+	- lh:
+		- z = x
+		- wreg = 1
+		- jal = 0
+		- jalr = x
+		- mem2reg = 1
+		- aluimm = 1
+		- signext = 1
+		- ls_b = 1
+		- ls_h = 0
+		- load_signext = 1
+		- aluc = xx0000
+		- wmem = 0
+		- psrc = 00	
+		- auipc = 0
 
 	- lw:
 		- z = x
@@ -251,10 +455,46 @@ Table of Contents
 		- mem2reg = 1
 		- aluimm = 1
 		- signext = 1
-		- aluc = x000
+		- ls_b = 0
+		- ls_h = 0
+		- load_signext = x
+		- aluc = xx0000
 		- wmem = 0
 		- psrc = 00
+		- auipc = 0
+		
+	- lbu:
+		- z = x
+		- wreg = 1
+		- jal = 0
+		- jalr = x
+		- mem2reg = 1
+		- aluimm = 1
+		- signext = 1
+		- ls_b = 1
+		- ls_h = 0
+		- load_signext = 0
+		- aluc = xx0000
+		- wmem = 0
+		- psrc = 00
+		- auipc = 0
 
+	- lhu:
+		- z = x
+		- wreg = 1
+		- jal = 0
+		- jalr = x
+		- mem2reg = 1
+		- aluimm = 1
+		- signext = 1
+		- ls_b = 1
+		- ls_h = 0
+		- load_signext = 0
+		- aluc = xx0000
+		- wmem = 0
+		- psrc = 00	
+		- auipc = 0
+		
 	- sw:
 		- z = x
 		- wreg = 0
@@ -263,9 +503,13 @@ Table of Contents
 		- mem2reg = x
 		- aluimm = 1
 		- signext = 1
-		- aluc = x000
+		- ls_b = 0
+		- ls_h = 0
+		- load_signext = x
+		- aluc = xx0000
 		- wmem = 1
 		- psrc = 00
+		- auipc = 0
 
 	- beq:
 		- z = 0/1
@@ -275,9 +519,13 @@ Table of Contents
 		- mem2reg = x
 		- aluimm = 0
 		- signext = 1
-		- aluc = x010
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx0100
 		- wmem = 0
 		- psrc = z
+		- auipc = 0
 
 	- bne:
 		- z = 0/1
@@ -287,9 +535,77 @@ Table of Contents
 		- mem2reg = x
 		- aluimm = 0
 		- signext = 1
-		- aluc = x010
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx0100
 		- wmem = 0
 		- psrc = ~z
+		- auipc = 0
+
+	- blt:
+		- z = 0/1
+		- wreg = 0
+		- jal = x
+		- jalr = 0
+		- mem2reg = x
+		- aluimm = 0
+		- signext = 1
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx0011
+		- wmem = 0
+		- psrc = ~z
+		- auipc = 0
+
+	- bltu:
+		- z = 0/1
+		- wreg = 0
+		- jal = x
+		- jalr = 0
+		- mem2reg = x
+		- aluimm = 0
+		- signext = 0
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx1011
+		- wmem = 0
+		- psrc = ~z
+		- auipc = 0
+
+	- bge:
+		- z = 0/1
+		- wreg = 0
+		- jal = x
+		- jalr = 0
+		- mem2reg = x
+		- aluimm = 0
+		- signext = 1
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx0011
+		- wmem = 0
+		- psrc = z
+		- auipc = 0
+
+	- bgeu:
+		- z = 0/1
+		- wreg = 0
+		- jal = x
+		- jalr = 0
+		- mem2reg = x
+		- aluimm = 0
+		- signext = 0
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx1011
+		- wmem = 0
+		- psrc = z
+		- auipc = 0
 
 	- lui:
 		- z = x
@@ -299,9 +615,13 @@ Table of Contents
 		- mem2reg = 0
 		- aluimm = 1
 		- signext = x
-		- aluc = x110
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx1100
 		- wmem = 0
 		- psrc = 00
+		- auipc = 0
 
 	- jalr:
 		- z = x
@@ -312,9 +632,13 @@ Table of Contents
 		- shift = 0
 		- aluimm = 1
 		- signext = x
-		- aluc =  xxxx
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc =  xxxxxx
 		- wmem = 0
 		- psrc = 01
+		- auipc = x
 
 	- jal:
 		- z = x
@@ -324,19 +648,39 @@ Table of Contents
 		- mem2reg = x
 		- aluimm = x
 		- signext = x
-		- aluc = xxxx
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xxxxxx
 		- wmem = 0
 		- psrc = 10
+		- auipc = x
+
+	- auipc:
+		- z = x
+		- wreg = 1
+		- jal = 0
+		- jalr = x
+		- mem2reg = 0
+		- aluimm = 1
+		- signext = 1
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx0000
+		- wmem = 0
+		- psrc = 00
+		- auipc = 1
 
 ### Register File
 - Inputs:
-	- rs1: Register source 1. Held in bits 15-19 of instruction
-	- rs2: Register source 2. Held in bits 20-24 of instruction
-	- rd: Register destination. Held in bits 7-11 of instruction
+	- rs1: Register source 1. Held in bits \[19:15] of instruction
+	- rs2: Register source 2. Held in bits \[24:20] of instruction
+	- rd: Register destination. Held in bits \[11:7] of instruction
 	- data: Data to be written (if applicable)
 	- we: write enable signal from control unit
 - Outputs:
-	- read_data1: 23-bit read data
+	- read_data1: 32-bit read data
 	- read_data2: 32-bit read data
 
 ### ALU
@@ -374,6 +718,12 @@ Table of Contents
 - The immediate decoder decodes the immediate values from the instruction
 - The immediate values are either padded with 0s or 1s depending on the signext signal from the control unit
 - The immediate value is then passed to the branch and jalr adder, the input b multiplexer for the ALU, and the jal and PC adder.
+
+### Store Modifier
+- The store modifier modifies the data to be stored depending on the size of the data to be stored.
+
+### Load Modifier
+- The load modifier modifies the data to be loaded depending on the size of the data to be loaded and whether or not to sign extend the data.
 
 ## Instruction Memory
 - Holds the 32-bit instructions
