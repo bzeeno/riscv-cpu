@@ -58,18 +58,18 @@ Table of Contents
 - 32-bit computing  
 - The CPU utilizes the Harvard architecture
 - Design is based on the RISC-V instruction set architecture (ISA)
-- The CPU is a simple single-cycle, single-core CPU
+- The CPU is a simple single-cycle, single-core CPU that can execute the instructions in the base RV32I subset of the RISC-V ISA (except for those related to exceptions and interrupts).
 
 ## Core
 ![](Diagrams/Core.jpg)
-- sc_core (single-cycle core) is the main module that contains the control unit, the program counter logic, the ALU, the register file, and the immediate decoder.
+- sc_core (single-cycle core) is the main module that contains the control unit, the program counter logic, the ALU, the register file, the immediate decoder, and the load and store modifiers.
 
 ### Program Counter
-- The program counter (PC) increments by 4 each clock cycle, assuming the instruction is not a branch or jump. The PC increments by 4 since the instruction memory is byte addressable, which means that by incrementing the counter by 4, we increment over 32 bits (the size of one instruction).
+- The program counter (PC) increments by 4 (bytes) each clock cycle, assuming the instruction is not a branch or jump.
 - Branches and Jumps:
 	- The immediate for branches and jumps is specified by the number of bytes
-		- This means the immediate will always be an even number, so, the 0th bit is set to 0 and is not encoded in the instruction
-		- If the branch or jump is taken, then: PC = PC + (immediate * 4)
+		- This means the immediate will always be an even number, so, the 0th bit is set to 0 and is not encoded in the instruction (not applicable to jalr)
+		- If the branch or jump is taken, then: PC = PC + signext(offset)
 	- jal instruction:
 		- The jal instruction is the instruction in which an immediate value is added to the PC to determine the target address
 		- The PC + 4 (The return address) is saved in the register file at rd, typically at 0x01
@@ -81,7 +81,7 @@ Table of Contents
 - The control unit is responsible for sending select signals to multiplexers as well as the ALU control signal.
 - Signals:
 	- Inputs:
-        	- opcode: The first 7 bits of the instruction
+        	- opcode: The first 7 bits of the instruction \[6:0]
         	- funct3: A 3 bit function code that is held in bits \[14:12] of the instruction (LUI and Jump instructions do not contain funct3)
         	- funct7: A 7 bit function code that is held in bits \[31:25] of the instruction (LUI, Jumps, Branches, and Immediates do not contain funct7)
 		- zero: The zero flag from the ALU (set to 1 if the output of the ALU is 0)
@@ -675,6 +675,8 @@ Table of Contents
 		- psrc = 00
 		- auipc = 1
 
+- Note: Any "z" seen above represents the output z from the ALU, it is not referring to a high impedance state
+
 ### Register File
 - Inputs:
 	- rs1: Register source 1. Held in bits \[19:15] of instruction
@@ -687,12 +689,8 @@ Table of Contents
 	- read_data2: 32-bit read data
 
 ### ALU
-- The ALU performs the following logical operations:
-	- AND
-	- OR
-	- XOR
-	- LUI 
-- The output is selected by a 4:1 MUX using bits 0 and 1 of the aluc signal as the selector
+- The ALU performs the basic logic functions as well as addition, subtraction, and shifting. Integer multiplication and division will be added in the future.
+- The output is selected by a 6:1 MUX using bits \[2:0] of the aluc signal as the selector
 #### Add/Sub Unit
 - The add_sub32 module instantiates the Carry Look-ahead Adder (CLA) and converts input b of the ALU if the operation is sub.
 	- In order to carry out a sub operation, the add_sub32 unit inverts input b and passes 1 as the carry-in. This effectively converts the binary number to 2's complement and the CLA can then simply add the inputs
@@ -714,7 +712,7 @@ Table of Contents
 - The sum is obtained by doing a bitwise XOR of the carry propagate and the obtained carry values
 
 #### Shifter
-- The shifter simply shifts the input based on the shift amount, right signal (if right = 0. then shift left), and the arith signal (which is a boolean for an arithmetic shift)
+- The shifter simply shifts the input based on the shift amount, right signal (if right = 0, then shift left), and the shift arithmetic signal (which is aluc\[4])
 </br>
 
 ### Immediate Decoder
@@ -723,10 +721,10 @@ Table of Contents
 - The immediate value is then passed to the branch and jalr adder, the input b multiplexer for the ALU, and the jal and PC adder.
 
 ### Store Modifier
-- The store modifier modifies the data to be stored depending on the size of the data to be stored.
+- The store modifier modifies the data to be stored depending on the size of the data to be stored. All the store modifier does is 0 extend the data by the required amount.
 
 ### Load Modifier
-- The load modifier modifies the data to be loaded depending on the size of the data to be loaded and whether or not to sign extend the data.
+- The load modifier modifies the data to be loaded depending on the size of the data to be loaded and whether or not the data must be sign extended.
 
 ## Instruction Memory
 - Holds the 32-bit instructions
