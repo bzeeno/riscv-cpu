@@ -107,9 +107,13 @@ Table of Contents
 		- mem2reg = 0
 		- aluimm = 0
 		- signext = x
-		- aluc = x000
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx0000
 		- wmem = 0
 		- psrc = 00
+		- auipc = 0
 
 	- sub:
 		- z = x
@@ -119,9 +123,13 @@ Table of Contents
 		- mem2reg = 0
 		- aluimm = 0
 		- signext = x
-		- aluc = x100
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx1000
 		- wmem = 0
 		- psrc = 00
+		- auipc = 0
 
 	- and:
 		- z = x
@@ -131,9 +139,13 @@ Table of Contents
 		- mem2reg = 0
 		- aluimm = 0
 		- signext = x
-		- aluc = x001
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx0010
 		- wmem = 0
 		- psrc = 00
+		- auipc = 0
 
 	- or:
 		- z = x
@@ -143,9 +155,13 @@ Table of Contents
 		- mem2reg = 0
 		- aluimm = 0
 		- signext = x
-		- aluc = x101
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx1010
 		- wmem = 0
 		- psrc = 00
+		- auipc = 0
 
 	- xor:
 		- z = x
@@ -155,9 +171,13 @@ Table of Contents
 		- mem2reg = 0
 		- aluimm = 0
 		- signext = x
-		- aluc = x010
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx0100
 		- wmem = 0
 		- psrc = 00
+		- auipc = 0
 
 	- addi:
 		- z = x
@@ -166,10 +186,78 @@ Table of Contents
 		- jalr = x
 		- mem2reg = 0
 		- aluimm = 1
-		- signext = 0
-		- aluc = x000
+		- signext = 1
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx0000
 		- wmem = 0
 		- psrc = 00
+		- auipc = 0
+
+	- slti:
+		- z = x
+		- wreg = 1
+		- jal = 0
+		- jalr = x
+		- mem2reg = 0
+		- aluimm = 1
+		- signext = 1
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx0011
+		- wmem = 0
+		- psrc = 00
+		- auipc = 0
+
+	- slt:
+		- z = x
+		- wreg = 1
+		- jal = 0
+		- jalr = x
+		- mem2reg = 0
+		- aluimm = 0
+		- signext = x
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx0011
+		- wmem = 0
+		- psrc = 00
+		- auipc = 0
+
+	- sltiu:
+		- z = x
+		- wreg = 1
+		- jal = 0
+		- jalr = x
+		- mem2reg = 0
+		- aluimm = 1
+		- signext = 1
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx1011
+		- wmem = 0
+		- psrc = 00
+		- auipc = 0
+
+	- sltu:
+		- z = x
+		- wreg = 1
+		- jal = 0
+		- jalr = x
+		- mem2reg = 0
+		- aluimm = 0
+		- signext = x
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx1011
+		- wmem = 0
+		- psrc = 00
+		- auipc = 0
 
 	- andi:
 		- z = x
@@ -179,9 +267,13 @@ Table of Contents
 		- mem2reg = 0
 		- aluimm = 1
 		- signext = 0
-		- aluc = x001
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx0010
 		- wmem = 0
 		- psrc = 00
+		- auipc = 0
 
 	- ori:
 		- z = x
@@ -191,9 +283,13 @@ Table of Contents
 		- mem2reg = 0
 		- aluimm = 1
 		- signext = 0
-		- aluc = x101
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx1010
 		- wmem = 0
 		- psrc = 00
+		- auipc = 0
 
 	- xori:
 		- z = x
@@ -203,21 +299,29 @@ Table of Contents
 		- mem2reg = 0
 		- aluimm = 1
 		- signext = 0
-		- aluc = x010
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx0100
 		- wmem = 0
 		- psrc = 00
+		- auipc = 0
 
-	- slli:
+- slli:
 		- z = x
 		- wreg = 1
 		- jal = 0
 		- jalr = x
 		- mem2reg = 0
 		- aluimm = 1
-		- signext = x
-		- aluc = 0011
+		- signext = 0
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = x00101
 		- wmem = 0
 		- psrc = 00
+		- auipc = 0
 
 	- srli:
 		- z = x
@@ -226,10 +330,14 @@ Table of Contents
 		- jalr = x
 		- mem2reg = 0
 		- aluimm = 1
-		- signext = x
-		- aluc = 0111
+		- signext = 0
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = x01101
 		- wmem = 0
 		- psrc = 00
+		- auipc = 0
 
 	- srai:
 		- z = x
@@ -238,10 +346,94 @@ Table of Contents
 		- jalr = x
 		- mem2reg = 0
 		- aluimm = 1
-		- signext = x
-		- aluc = 1111
+		- signext = 0
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = x11101
 		- wmem = 0
 		- psrc = 00
+		- auipc = 0
+
+	- sll:
+		- z = x
+		- wreg = 1
+		- jal = 0
+		- jalr = x
+		- mem2reg = 0
+		- aluimm = 0
+		- signext = x
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = x00101
+		- wmem = 0
+		- psrc = 00
+		- auipc = 0
+
+	- srl:
+		- z = x
+		- wreg = 1
+		- jal = 0
+		- jalr = x
+		- mem2reg = 0
+		- aluimm = 0
+		- signext = x
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = x01101
+		- wmem = 0
+		- psrc = 00
+		- auipc = 0
+
+	- sra:
+		- z = x
+		- wreg = 1
+		- jal = 0
+		- jalr = x
+		- mem2reg = 0
+		- aluimm = 0
+		- signext = x
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = x11101
+		- wmem = 0
+		- psrc = 00
+		- auipc = 0
+
+	- lb:
+		- z = x
+		- wreg = 1
+		- jal = 0
+		- jalr = x
+		- mem2reg = 1
+		- aluimm = 1
+		- signext = 1
+		- ls_b = 1
+		- ls_h = 0
+		- load_signext = 1
+		- aluc = xx0000
+		- wmem = 0
+		- psrc = 00
+		- auipc = 0
+		
+	- lh:
+		- z = x
+		- wreg = 1
+		- jal = 0
+		- jalr = x
+		- mem2reg = 1
+		- aluimm = 1
+		- signext = 1
+		- ls_b = 1
+		- ls_h = 0
+		- load_signext = 1
+		- aluc = xx0000
+		- wmem = 0
+		- psrc = 00	
+		- auipc = 0
 
 	- lw:
 		- z = x
@@ -251,10 +443,46 @@ Table of Contents
 		- mem2reg = 1
 		- aluimm = 1
 		- signext = 1
-		- aluc = x000
+		- ls_b = 0
+		- ls_h = 0
+		- load_signext = x
+		- aluc = xx0000
 		- wmem = 0
 		- psrc = 00
+		- auipc = 0
+		
+	- lbu:
+		- z = x
+		- wreg = 1
+		- jal = 0
+		- jalr = x
+		- mem2reg = 1
+		- aluimm = 1
+		- signext = 1
+		- ls_b = 1
+		- ls_h = 0
+		- load_signext = 0
+		- aluc = xx0000
+		- wmem = 0
+		- psrc = 00
+		- auipc = 0
 
+	- lhu:
+		- z = x
+		- wreg = 1
+		- jal = 0
+		- jalr = x
+		- mem2reg = 1
+		- aluimm = 1
+		- signext = 1
+		- ls_b = 1
+		- ls_h = 0
+		- load_signext = 0
+		- aluc = xx0000
+		- wmem = 0
+		- psrc = 00	
+		- auipc = 0
+		
 	- sw:
 		- z = x
 		- wreg = 0
@@ -263,9 +491,13 @@ Table of Contents
 		- mem2reg = x
 		- aluimm = 1
 		- signext = 1
-		- aluc = x000
+		- ls_b = 0
+		- ls_h = 0
+		- load_signext = x
+		- aluc = xx0000
 		- wmem = 1
 		- psrc = 00
+		- auipc = 0
 
 	- beq:
 		- z = 0/1
@@ -275,9 +507,13 @@ Table of Contents
 		- mem2reg = x
 		- aluimm = 0
 		- signext = 1
-		- aluc = x010
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx0100
 		- wmem = 0
 		- psrc = z
+		- auipc = 0
 
 	- bne:
 		- z = 0/1
@@ -287,9 +523,77 @@ Table of Contents
 		- mem2reg = x
 		- aluimm = 0
 		- signext = 1
-		- aluc = x010
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx0100
 		- wmem = 0
 		- psrc = ~z
+		- auipc = 0
+
+- blt:
+		- z = 0/1
+		- wreg = 0
+		- jal = x
+		- jalr = 0
+		- mem2reg = x
+		- aluimm = 0
+		- signext = 1
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx0011
+		- wmem = 0
+		- psrc = ~z
+		- auipc = 0
+
+- bltu:
+		- z = 0/1
+		- wreg = 0
+		- jal = x
+		- jalr = 0
+		- mem2reg = x
+		- aluimm = 0
+		- signext = 0
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx1011
+		- wmem = 0
+		- psrc = ~z
+		- auipc = 0
+
+- bge:
+		- z = 0/1
+		- wreg = 0
+		- jal = x
+		- jalr = 0
+		- mem2reg = x
+		- aluimm = 0
+		- signext = 1
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx0011
+		- wmem = 0
+		- psrc = z
+		- auipc = 0
+
+- bgeu:
+		- z = 0/1
+		- wreg = 0
+		- jal = x
+		- jalr = 0
+		- mem2reg = x
+		- aluimm = 0
+		- signext = 0
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx1011
+		- wmem = 0
+		- psrc = z
+		- auipc = 0
 
 	- lui:
 		- z = x
@@ -299,9 +603,13 @@ Table of Contents
 		- mem2reg = 0
 		- aluimm = 1
 		- signext = x
-		- aluc = x110
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx1100
 		- wmem = 0
 		- psrc = 00
+		- auipc = 0
 
 	- jalr:
 		- z = x
@@ -312,9 +620,13 @@ Table of Contents
 		- shift = 0
 		- aluimm = 1
 		- signext = x
-		- aluc =  xxxx
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc =  xxxxxx
 		- wmem = 0
 		- psrc = 01
+		- auipc = x
 
 	- jal:
 		- z = x
@@ -324,9 +636,29 @@ Table of Contents
 		- mem2reg = x
 		- aluimm = x
 		- signext = x
-		- aluc = xxxx
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xxxxxx
 		- wmem = 0
 		- psrc = 10
+		- auipc = x
+
+	- auipc:
+		- z = x
+		- wreg = 1
+		- jal = 0
+		- jalr = x
+		- mem2reg = 0
+		- aluimm = 1
+		- signext = 1
+		- ls_b = x
+		- ls_h = x
+		- load_signext = x
+		- aluc = xx0000
+		- wmem = 0
+		- psrc = 00
+		- auipc = 1
 
 ### Register File
 - Inputs:
