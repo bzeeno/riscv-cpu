@@ -75,29 +75,39 @@ Table of Contents
 ### Control Unit
 - The control unit is responsible for sending select signals to multiplexers as well as the ALU control signal.
 - Signals:
-    - Inputs:
-        - opcode: The first 7 bits of the instruction
-        - funct3: A 3 bit function code that is held in bits 12-14 of the instruction (LUI and Jump instructions do not contain funct3)
-        - funct7: A 7 bit function code that is held in bits 25-31 of the instruction (LUI, Jumps, Branches, and Immediates do not contain funct7)
+	- Inputs:
+        	- opcode: The first 7 bits of the instruction
+        	- funct3: A 3 bit function code that is held in bits \[14:12] of the instruction (LUI and Jump instructions do not contain funct3)
+        	- funct7: A 7 bit function code that is held in bits \[31:25] of the instruction (LUI, Jumps, Branches, and Immediates do not contain funct7)
 		- zero: The zero flag from the ALU (set to 1 if the output of the ALU is 0)
+	
 	- Outputs:
-		- jal: Selector signal for data to be written to the register file
-		- signext: A signal to determine whether to sign extend the immediate value (If it is an immediate instruction)
 		- wreg: The write enbale signal for the register file
+		- jal: Selector signal for data to be written to the register file
+		- jalr: The selector signal for the multiplexer for jalr and branch instructions
+		- mem2reg: The selector signal for the multiplexer that chooses between the ALU result and the data memory
+			- 0: ALU result
+			- 1: Data from data memory
 		- aluimm: The selector signal for input b of the ALU
 			- 0: read_data2 from register file
 			- 1: Immediate value
-		- aluc: The 4-bit ALU control signal. This signal determines which operation the ALU will execute.
+		- signext: A signal to determine whether to sign extend the immediate value (If it is an immediate instruction)
+		- ls_b: This signal is used only for load and store instructions. This signal determines if the load or store is operating on a byte. (i.e. load byte/store byte)
+		- ls_h: This signal is similar to ls_b, except that it determines if the CPU is loading or storing a half-word
+		- load_signext: Determines whether to sign extend the loaded data.
+		- aluc: The 6-bit ALU control signal. This signal determines which operation the ALU will execute.
+			- bits \[2:0] are used as the select signal for the final output of the ALU.
+			- bit \[3] is used as the select signal between two operations (i.e. add/sub, and/or, etc.)
+			- bit \[4] is used to determine if a shift operation is logical or arithmetic.
+			- bit \[5] will be used for integer multiply and divide operations.
 		- wmem: The write enable signal for the data memory
 		- pcsrc: The selector signal for the program counter multiplexer
 			- 0: PC+4
 			- 1: Branch Addr
 			- 2: Reg Addr
 			- 3: Jump Addr
-		- mem2reg: The selector signal for the multiplexer that chooses between the ALU result and the data memory
-			- 0: ALU result
-			- 1: Data from data memory
-		- jalr: The selector signal for the multiplexer for jalr and branch instructions
+		- auipc: Determines if the instruction is auipc.
+		
 - Instructions and their respective signal values:
 	- add:
 		- z = x
@@ -662,13 +672,13 @@ Table of Contents
 
 ### Register File
 - Inputs:
-	- rs1: Register source 1. Held in bits 15-19 of instruction
-	- rs2: Register source 2. Held in bits 20-24 of instruction
-	- rd: Register destination. Held in bits 7-11 of instruction
+	- rs1: Register source 1. Held in bits \[19:15] of instruction
+	- rs2: Register source 2. Held in bits \[24:20] of instruction
+	- rd: Register destination. Held in bits \[11:7] of instruction
 	- data: Data to be written (if applicable)
 	- we: write enable signal from control unit
 - Outputs:
-	- read_data1: 23-bit read data
+	- read_data1: 32-bit read data
 	- read_data2: 32-bit read data
 
 ### ALU
