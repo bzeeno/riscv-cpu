@@ -15,6 +15,8 @@ Table of Contents
                * [Carry Look-ahead Adder (CLA)](#carry-look-ahead-adder-cla)
             * [Shifter](#shifter)
          * [Immediate Decoder](#immediate-decoder)
+         * [Store Modifier](#store-modifier)
+         * [Load Modifier](#load-modifier)
       * [Instruction Memory](#instruction-memory)
       * [Data Memory](#data-memory)
 
@@ -716,6 +718,12 @@ Table of Contents
 - The immediate decoder decodes the immediate values from the instruction
 - The immediate values are either padded with 0s or 1s depending on the signext signal from the control unit
 - The immediate value is then passed to the branch and jalr adder, the input b multiplexer for the ALU, and the jal and PC adder.
+
+### Store Modifier
+- The store modifier modifies the data to be stored depending on the size of the data to be stored.
+
+### Load Modifier
+- The load modifier modifies the data to be loaded depending on the size of the data to be loaded and whether or not to sign extend the data.
 
 ## Instruction Memory
 - Holds the 32-bit instructions
