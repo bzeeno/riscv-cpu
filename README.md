@@ -14,6 +14,7 @@ Table of Contents
             * [Add/Sub Unit](#addsub-unit)
                * [Carry Look-ahead Adder (CLA)](#carry-look-ahead-adder-cla)
             * [Shifter](#shifter)
+            * [Comparator](#comparator)
          * [Immediate Decoder](#immediate-decoder)
          * [Store Modifier](#store-modifier)
          * [Load Modifier](#load-modifier)
@@ -55,10 +56,16 @@ Table of Contents
 ├── Diagrams
 │   ├── Core.jpg
 │   └── cpu.jpg
-└── README.md
+├── README.md
+└── Test
+    ├── riscv_cpu_tb.sv
+    └── sc_cpu_test.asm
+
 </pre>
 
-- The CPU directory contains all of the design files, while the Diagrams directory contains the diagrams
+- The CPU directory contains all of the design files
+- The Diagrams directory contains the diagrams in README.md 
+- The Test directory contains the test bench file and the assembly file used to test the CPU
 
 # CPU Design
 ![](Diagrams/cpu.jpg)
