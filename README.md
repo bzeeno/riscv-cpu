@@ -22,33 +22,40 @@ Table of Contents
 
 # Directory Structure
 <pre>
-├── Core
-│   ├── ALU
-│   │   ├── AddSubUnit
-│   │   │   ├── add_sub32.v
-│   │   │   └── CLA
-│   │   │       ├── cla_16bit.v
-│   │   │       ├── cla_32bit.v
-│   │   │       ├── cla_4bit.v
-│   │   │       └── cla_8bit.v
-│   │   ├── alu.v
-│   │   └── Shifter
-│   │       └── shifter.v
-│   ├── control_unit.v
-│   ├── core.v
-│   ├── dff.v
-│   ├── imm_decode.v
-│   ├── load_modifier.v
-│   ├── mux.v
-│   ├── regfile.v
-│   └── store_modifier.v
-├── Data_Mem
-│   └── data_mem.v
-├── Instruction_Mem
-│   └── instruction_mem.v
-└── sc_cpu.v
-
-
+├── CPU
+│   ├── Core
+│   │   ├── ALU
+│   │   │   ├── AddSubUnit
+│   │   │   │   ├── add_sub32.v
+│   │   │   │   └── CLA
+│   │   │   │       ├── cla_16bit.v
+│   │   │   │       ├── cla_32bit.v
+│   │   │   │       ├── cla_4bit.v
+│   │   │   │       └── cla_8bit.v
+│   │   │   ├── alu.v
+│   │   │   ├── Comparator
+│   │   │   │   ├── comparator_1bit.v
+│   │   │   │   └── comparator.v
+│   │   │   └── Shifter
+│   │   │       └── shifter.v
+│   │   ├── control_unit.v
+│   │   ├── core.v
+│   │   ├── dff.v
+│   │   ├── imm_decode.v
+│   │   ├── load_modifier.v
+│   │   ├── mux.v
+│   │   ├── regfile.v
+│   │   └── store_modifier.v
+│   ├── Data_Mem
+│   │   └── data_mem.v
+│   ├── Instruction_Mem
+│   │   ├── instruction_mem.v
+│   │   └── test_program.mem
+│   └── sc_cpu.v
+├── Diagrams
+│   ├── Core.jpg
+│   └── cpu.jpg
+└── README.md
 </pre>
 
 - The CPU directory contains all of the design files, while the Diagrams directory contains the diagrams
@@ -196,6 +203,13 @@ Table of Contents
 #### Shifter
 - The shifter simply shifts the input based on the shift amount, right signal (if right = 0, then shift left), and the shift arithmetic signal (which is aluc\[4])
 </br>
+
+#### Comparator
+- Compares two 32-bit inputs to determine which is larger. It does so by instantiating 32 1-bit comparators.
+- The output is 1 if a<b and 0 otherwise. (where a is the first input, and b is the second)
+- One of the inputs is unsigned_op which is set to 1 if the operation is unsigned
+- If it is an unsigned operation, then the 2 magnitudes are compared directly
+- If it is a signed operation, then the signs are first compared. If they have different signs, then the negative number is smaller. If they are both positive, then the magnitudes are compared. If they're both negative, then the magnitudes are compared and the result is inverted (A negative number with a higher magnitude is smaller)
 
 ### Immediate Decoder
 - The immediate decoder decodes the immediate values from the instruction
