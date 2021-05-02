@@ -162,7 +162,7 @@ module control_unit (
                         aluc     = 6'bxx1011;
                     end
 
-                    default: pcsrc = 1'bx;
+                    default: pcsrc = 2'b00;
                 endcase
             end
             

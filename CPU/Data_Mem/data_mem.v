@@ -10,7 +10,7 @@ module data_mem (
     always @(posedge i_clk)
     begin
         if(we)
-            ram[i_addr[6:2]] = i_data;
+            ram[i_addr[4:0]] = i_data;
     end
     
     integer i;
@@ -20,6 +20,6 @@ module data_mem (
             ram[i] = 0;
     end
     
-    assign o_data = ram[i_addr[6:2]];
+    assign o_data = ram[i_addr[4:0]];
 
 endmodule
