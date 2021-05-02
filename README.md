@@ -94,16 +94,13 @@ Table of Contents
 ### Control Unit
 - The control unit is responsible for sending select signals to multiplexers as well as the ALU control signal.
 - Signals:
-
 	- Inputs:
-	
-        	- opcode: The first 7 bits of the instruction \[6:0]         	
-        	- funct3: A 3 bit function code that is held in bits \[14:12] of the instruction (LUI and Jump instructions do not contain funct3)
-        	- funct7: A 7 bit function code that is held in bits \[31:25] of the instruction (LUI, Jumps, Branches, and Immediates do not contain funct7)
+		- opcode: The first 7 bits of the instruction \[6:0]	
+		- funct3: A 3 bit function code that is held in bits \[14:12] of the instruction (LUI and Jump instructions do not contain funct3)
+		- funct7: A 7 bit function code that is held in bits \[31:25] of the instruction (LUI, Jumps, Branches, and Immediates do not contain funct7)
 		- zero: The zero flag from the ALU (set to 1 if the output of the ALU is 0)
 	
 	- Outputs:
-
 		- wreg: The write enbale signal for the register file
 		- jal: Selector signal for data to be written to the register file
 		- jalr: The selector signal for the multiplexer for jalr and branch instructions
