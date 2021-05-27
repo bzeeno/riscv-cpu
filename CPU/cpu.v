@@ -1,8 +1,8 @@
-module sc_cpu(
+module cpu(
     input wire i_clk, i_resetn,
     output wire [31:0] instr,
     output wire [31:0] pc,
-    output wire [31:0] alu_out, 
+    output wire [31:0] addr_out, 
     output wire [31:0] mem_out    
 );
 
@@ -11,12 +11,12 @@ module sc_cpu(
     
     assign mem_out = core_dmem_in;
     
-    sc_core core (
+    core core1 (
         .i_clk(i_clk), .i_resetn(i_resetn),
         .i_instr(instr),
         .i_dmem(core_dmem_in), 
         .o_pc(pc),   
-        .o_alu(alu_out),  
+        .o_addr(addr_out),  
         .o_dmem(core_dmem_out), 
         .o_wmem(wmem) 
     );
@@ -24,7 +24,7 @@ module sc_cpu(
     data_mem dmem (
         .i_clk(i_clk), .we(wmem),
         .i_data(core_dmem_out),
-        .i_addr(alu_out),
+        .i_addr(addr_out),
         .o_data(core_dmem_in)
     );
     
@@ -35,3 +35,4 @@ module sc_cpu(
     
 
 endmodule
+
