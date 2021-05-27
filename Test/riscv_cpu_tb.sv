@@ -2,7 +2,7 @@
 module sc_cpu_tb();
 
     logic clk, resetn;
-    logic [31:0] instr, pc, alu_out, mem_out;
+    logic [31:0] instr, pc, addr_out, mem_out;
     
     
     /*************************** DUT ******************************/
@@ -10,7 +10,7 @@ module sc_cpu_tb();
         .i_clk(clk), .i_resetn(resetn),
         .instr(instr),
         .pc(pc),
-        .alu_out(alu_out), 
+        .addr_out(addr_out), 
         .mem_out(mem_out)    
     );
     /**************************************************************/

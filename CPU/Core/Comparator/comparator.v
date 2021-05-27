@@ -3,7 +3,7 @@
 module comparator(
     input wire [31:0] a, b, 
     input wire unsigned_op, // if(unsigned operation) => 1 ; else => 0
-    output o_a_lt_b // output a less-than b
+    output o_a_lt_b, o_a_eq_b // output a less-than b | a equal-to b
 );
     // declarations
     wire intermediate_a_lt_b [0:31]; // intermediate a<b wires between 1-bit comparators
@@ -16,6 +16,7 @@ module comparator(
     // intermediate signals
     wire a_lt_b;
     wire final_a_lt_b; // final a_lt_b signal. 
+    wire xor_r; // result of xor of input a and b
     
     /*
     If operation is unsigned, pass unmodified a and b inputs and set the first intermediate_a_lt_b signal to 0.
@@ -36,7 +37,7 @@ module comparator(
 
     assign both_neg    = (unsigned_op) ? 1'b0 : // if not signed => 0
                          (diff_sign)   ? 1'b0 : // if different signs => 0
-                         a[31];               // else => MSB of a (or b)
+                         a[31];                 // else => MSB of a (or b)
 
     assign mod_a = (both_neg) ? (~a + 1'b1) : a; // get magnitude of a
     assign mod_b = (both_neg) ? (~b + 1'b1) : b; // get magnitude of b
@@ -53,5 +54,8 @@ module comparator(
 
     assign final_a_lt_b = (both_neg)    ? ~a_lt_b : a_lt_b; // if both nums were neg., then invert result (since the one with the greater magnitude will be smaller)
     assign o_a_lt_b     = (b_neg_a_pos) ? 1'b0    : a_lt_b; // if b is neg. and a is pos. then a > b. else return a_lt_b
+
+    assign xor_r = a ^ b;
+    assign o_a_eq_b = (xor_r == 0); 
 
 endmodule
